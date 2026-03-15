@@ -116,6 +116,7 @@ if [ "${1:-}" = "ui" ]; then
 
     log "UI ready → http://localhost:5173  (Ctrl+C to stop)"
     wait
+    exit 0
 fi
 
 # ── Ensure directories exist ─────────────────────────────────

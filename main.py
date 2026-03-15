@@ -1002,7 +1002,9 @@ def run_ui_only():
 
 if __name__ == "__main__":
     import sys
-    if "--ui-only" in sys.argv:
+    if "--ui-only" in sys.argv or (not config.API_HASH and not config.BOT_TOKEN):
+        if "--ui-only" not in sys.argv:
+            print("No Telegram credentials found in .env — starting in UI-only mode")
         run_ui_only()
     else:
         try:
