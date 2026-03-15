@@ -6,6 +6,7 @@
 #   ./deploy.sh              — start & watch for changes
 #   ./deploy.sh force-pull   — reset to origin/main
 #   ./deploy.sh setup        — create .env template & directories
+#   ./deploy.sh ui           — run UI with mock data (no Telegram needed)
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_NAME="socialfreak"
@@ -65,6 +66,42 @@ ENVEOF
 
     log "Setup done. Edit .env then run: ./deploy.sh"
     exit 0
+fi
+
+# ── UI-only mode: mock data, no Telegram ─────────────────────
+if [ "${1:-}" = "ui" ]; then
+    mkdir -p session data reels_cache data/creator_media
+    [ ! -f .env ] && touch .env
+
+    log "Starting API with mock data on http://localhost:5174 ..."
+    log "Starting frontend dev server on http://localhost:5173 ..."
+
+    # Start backend in background
+    cd "$REPO_DIR"
+    python main.py --ui-only &
+    API_PID=$!
+
+    # Start frontend dev server
+    cd "$REPO_DIR/frontend"
+    if [ ! -d node_modules ]; then
+        info "Installing frontend dependencies..."
+        npm install
+    fi
+    npm run dev &
+    FE_PID=$!
+
+    cd "$REPO_DIR"
+
+    cleanup_ui() {
+        log "Stopping..."
+        kill "$API_PID" "$FE_PID" 2>/dev/null
+        wait "$API_PID" "$FE_PID" 2>/dev/null
+        exit 0
+    }
+    trap cleanup_ui INT TERM
+
+    log "UI ready → http://localhost:5173  (Ctrl+C to stop)"
+    wait
 fi
 
 # ── Ensure directories exist ─────────────────────────────────

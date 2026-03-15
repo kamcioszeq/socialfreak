@@ -949,8 +949,63 @@ async def main():
         print("Zatrzymano.")
 
 
+def run_ui_only():
+    """Run web API only — no Telegram, with demo data for UI testing."""
+    import uvicorn
+    import time as _time
+    from shared import pending_adoption, pending_posts, track_post
+
+    # Inject demo posts
+    demo_posts = [
+        {"original_text": "Rosja przeprowadzila atak rakietowy na Odesse. Zniszczono infrastrukture portowa. Ukraina zapowiada odpowiedz.", "source": "@ukr_news", "has_media": False},
+        {"original_text": "NATO zwieksza budżet obronny o 15% w odpowiedzi na rosnace zagrozenia. Sekretarz generalny podkreslil jednosc sojuszu.", "source": "@nato_watch", "has_media": False},
+        {"original_text": "Chiny i Iran podpisaly nowe porozumienie handlowe warte 10 mld USD. Analitycy widza to jako wzmocnienie osi antyamerykańskiej.", "source": "@geopolitics", "has_media": False},
+    ]
+    for i, d in enumerate(demo_posts):
+        pid = 1000 + i
+        pending_adoption[pid] = track_post(pending_adoption, {**d, "messages": [], "cached_files": []}, sent_id=pid)
+
+    demo_in_progress = [
+        {"original_text": "Turcja mediuje w konflikcie syryjskim.", "source": "@middleeast", "text": "Turcja podejmuje kolejna probe mediacji w Syrii.", "text_telegram": "Turcja podejmuje kolejna probe mediacji w Syrii. Erdogan rozmawial z obiema stronami konfliktu.", "text_x": "Turcja mediuje w Syrii - Erdogan rozmawial z obiema stronami", "text_facebook": "", "platform": "telegram", "has_media": False, "tags": ["Turcja", "Syria"], "tone": "diplomacy"},
+        {"original_text": "Indie testuja nowy pocisk balistyczny dalekiego zasiegu.", "source": "@defense_news", "text": "Indie z sukcesem przetestowaly pocisk Agni-VI.", "text_telegram": "Indie z sukcesem przetestowaly pocisk balistyczny Agni-VI o zasiegu 8000km.", "text_x": "", "text_facebook": "", "platform": "telegram", "has_media": False, "tags": ["Indie", "Obronnosc"], "tone": "tension"},
+    ]
+    for i, d in enumerate(demo_in_progress):
+        wid = f"web_demo{i}"
+        pending_posts[wid] = track_post(pending_posts, {**d, "messages": [], "cached_files": [], "forwarded": False, "approval_status": "draft"}, sent_id=wid)
+
+    # Inject demo published history
+    from published_store import _load, _save, PUBLISHED_JSON
+    import os
+    if not os.path.exists(PUBLISHED_JSON) or os.path.getsize(PUBLISHED_JSON) < 10:
+        demo_published = []
+        for day_offset in range(7):
+            ts = _time.strftime("%Y-%m-%dT%H:%M:%S", _time.localtime(_time.time() - day_offset * 86400 - 3600))
+            demo_published.append({
+                "id": f"pub_demo{day_offset}",
+                "platform": ["telegram", "facebook", "telegram"][day_offset % 3],
+                "source": ["@ukr_news", "@nato_watch", "@geopolitics"][day_offset % 3],
+                "text": f"Demo opublikowany post nr {day_offset + 1}",
+                "original_text": f"Original demo text {day_offset + 1}",
+                "published_at": ts,
+                "tags": ["demo"],
+            })
+        _save(demo_published)
+
+    from web_api import app as web_app
+    print("=" * 60)
+    print("  UI-ONLY MODE — demo data, no Telegram")
+    print(f"  API:  http://localhost:{config.WEB_PORT}")
+    print(f"  UI:   http://localhost:5173")
+    print("=" * 60)
+    uvicorn.run(web_app, host=config.WEB_HOST, port=config.WEB_PORT, log_level="info")
+
+
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        pass
+    import sys
+    if "--ui-only" in sys.argv:
+        run_ui_only()
+    else:
+        try:
+            asyncio.run(main())
+        except KeyboardInterrupt:
+            pass
