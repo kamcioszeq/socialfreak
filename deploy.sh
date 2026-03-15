@@ -7,6 +7,7 @@
 #   ./deploy.sh force-pull   — reset to origin/main
 #   ./deploy.sh setup        — create .env template & directories
 #   ./deploy.sh ui           — run UI with mock data (no Telegram needed)
+#   ./deploy.sh down         — force stop & remove all containers
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_NAME="socialfreak"
@@ -65,6 +66,19 @@ ENVEOF
     fi
 
     log "Setup done. Edit .env then run: ./deploy.sh"
+    exit 0
+fi
+
+# ── Force down: stop & remove all project containers ─────────
+if [ "${1:-}" = "down" ]; then
+    log "Stopping all $PROJECT_NAME containers..."
+    podman-compose -p "$PROJECT_NAME" down --remove-orphans 2>/dev/null
+    # Force kill any stragglers matching the project name
+    for cid in $(podman ps -aq --filter "name=${PROJECT_NAME}" 2>/dev/null); do
+        podman stop "$cid" 2>/dev/null
+        podman rm -f "$cid" 2>/dev/null
+    done
+    log "All containers stopped and removed."
     exit 0
 fi
 
