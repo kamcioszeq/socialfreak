@@ -70,10 +70,10 @@ fi
 # ── Ensure directories exist ─────────────────────────────────
 mkdir -p session data reels_cache
 
-# ── Check .env exists (warn but don't block) ─────────────────
+# ── Ensure .env exists (podman-compose requires it) ──────────
 if [ ! -f .env ]; then
-    info "No .env file found. Run './deploy.sh setup' to create one, or set env vars directly."
-    info "Continuing with environment variables from shell/compose..."
+    info "No .env file found. Creating empty .env (run './deploy.sh setup' for a template)."
+    touch .env
 fi
 
 export GIT_SSH_COMMAND="ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o BatchMode=yes"

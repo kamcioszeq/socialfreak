@@ -5,22 +5,7 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-    env_file:
-      - path: .env
-        required: false
-    environment:
-      - API_ID=${API_ID:-0}
-      - API_HASH=${API_HASH:-}
-      - BOT_TOKEN=${BOT_TOKEN:-}
-      - OWNER_ID=${OWNER_ID:-0}
-      - CHANNEL_ID=${CHANNEL_ID:-0}
-      - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
-      - SOURCE_CHANNELS=${SOURCE_CHANNELS:-}
-      - FB_PAGE_ACCESS_TOKEN=${FB_PAGE_ACCESS_TOKEN:-}
-      - FB_PAGE_ID=${FB_PAGE_ID:-}
-      - WEB_HOST=0.0.0.0
-      - WEB_PORT=5174
-      - REVIEWER_IDS=${REVIEWER_IDS:-}
+    env_file: .env
     network_mode: host
     volumes:
       - ./session:/app/session
