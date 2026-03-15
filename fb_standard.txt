@@ -1,0 +1,66 @@
+# =========================================================================
+# FACEBOOK & REELS COMMUNITY STANDARDS - SCORING ENGINE CONFIGURATION
+# Format: [RULE_ID] | [CATEGORY] | [WEIGHT 0-100] | [ACTION_THRESHOLD] | [DESCRIPTION]
+# =========================================================================
+
+# --- CATEGORY: VIOLENCE AND CRIMINAL BEHAVIOR ---
+VIO_01 | Violence_Incitement | 100 | AUTO_BLOCK | Direct threats or calls for physical harm.
+VIO_02 | Dangerous_Orgs     | 100 | AUTO_BLOCK | Promotion of terrorism, hate groups, or criminal networks.
+VIO_03 | Promoting_Crime    | 85  | FLAG_REVIEW| Coordination of theft, fraud, or vandalism.
+VIO_04 | Regulated_Goods    | 90  | AUTO_BLOCK | Sale/promotion of firearms, drugs, or prescription meds.
+
+# --- CATEGORY: SAFETY & BULLYING ---
+SAF_01 | Self_Harm          | 100 | URGENT_MOD | Promotion or depiction of suicide or self-injury.
+SAF_02 | Child_Safety       | 100 | AUTO_BLOCK | Sexualization or exploitation of minors.
+SAF_03 | Harassment         | 75  | SHADOWBAN  | Targeted attacks, doxing, or repetitive bullying.
+SAF_04 | Privacy_Violation  | 60  | FLAG_REVIEW| Sharing private identity info or non-consensual imagery.
+
+# --- CATEGORY: OBJECTIONABLE CONTENT ---
+CON_01 | Hate_Speech        | 95  | AUTO_BLOCK | Attacks based on race, religion, sexual orientation, etc.
+CON_02 | Graphic_Violensce   | 80  | AGE_GATE   | Real-world gore, animal cruelty, or excessive blood.
+CON_03 | Sexual_Content     | 85  | SHADOWBAN  | Nudity, sexual acts, or highly suggestive fetishes.
+CON_04 | Medical_Graphic    | 45  | DOWNRANK   | Surgeries or open wounds without educational context.
+
+# --- CATEGORY: INTEGRITY AND AUTHENTICITY ---
+AUT_01 | Engagement_Bait    | 30  | DOWNRANK   | "Click-bait" or "Like-if-you-agree" manipulation.
+AUT_02 | Misinformation     | 70  | FLAG_REVIEW| False claims flagged by third-party fact-checkers.
+AUT_03 | Unoriginal_Content | 50  | DOWNRANK   | Reels with third-party watermarks (e.g., TikTok logo).
+AUT_04 | Spam               | 40  | SHADOWBAN  | High-frequency posting or automated bot-like behavior.
+
+# --- REELS SPECIFIC QUALITY (UX SCORING) ---
+REL_01 | Low_Resolution     | 20  | DOWNRANK   | Video quality below 720p or blurry visuals.
+REL_02 | Aspect_Ratio_Error | 25  | DOWNRANK   | Non-vertical video (black bars or landscape in Reels).
+REL_03 | Audio_Copyright    | 65  | MUTE_VIDEO | Use of unlicensed music or audio tracks.
+# =========================================================================
+# GEOPOLITICAL & SENSITIVE TOPICS (POLITICAL CORRECTNESS & POLARIZATION)
+# =========================================================================
+
+# --- MODULE: ISRAEL & MIDDLE EAST CONFLICT ---
+# Meta ma bardzo rygorystyczne podejście do antysemityzmu vs krytyki państwa.
+ISR_01 | Anti_Semitism      | 100 | AUTO_BLOCK | Hate speech, tropes, or dehumanizing language against Jews.
+ISR_02 | Zionism_Hate       | 85  | FLAG_REVIEW| Use of 'Zionist' as a proxy for hate speech or calls for harm.
+ISR_03 | Conflict_Gore      | 90  | AGE_GATE   | Unfiltered footage from conflict zones (IDF/Hamas/Hezbollah).
+ISR_04 | Terror_Symbols     | 100 | AUTO_BLOCK | Flags, logos, or praise for groups on the US/EU terror lists.
+ISR_05 | Denial_Atrocities  | 95  | DOWNRANK   | Denying or mocking historical or current mass-casualty events.
+
+# --- MODULE: USA & DOMESTIC POLITICS ---
+# Kluczowe dla algorytmów przedwyborczych i stabilności społecznej.
+USA_01 | Election_Integrity | 90  | FLAG_REVIEW| Claims of rigged elections, fraud (without proof), or voter suppression.
+USA_02 | Civil_Unrest       | 80  | SHADOWBAN  | Promoting or glorifying riots, January 6th-style events, or militias.
+USA_03 | Polarization_Bait  | 40  | DOWNRANK   | Extreme 'Left vs Right' baiting, dehumanizing political opponents.
+USA_04 | Conspiratorial_Th  | 75  | REDUCE_DIST| QAnon-related content, deep-state theories, or medical misinformation.
+USA_05 | Protected_Groups   | 85  | AUTO_BLOCK | Attacks on constitutional rights or specific US protected classes.
+
+# --- MODULE: GLOBAL SENSITIVE CONTENT (POLITICAL CORRECTNESS) ---
+POL_01 | Gender_Identity    | 70  | FLAG_REVIEW| Content violating Meta’s 'Respectful Discourse' on gender (misgendering/slurs).
+POL_02 | Cultural_Mockery   | 50  | DOWNRANK   | Stereotyping, blackface, or mocking cultural heritage/religious dress.
+POL_03 | Climate_Denial     | 30  | INFO_LABEL | Content explicitly denying climate change (usually gets a fact-check label).
+
+
+# =========================================================================
+# SCORING LOGIC SUMMARY:
+# 0-30   : SAFE (No action)
+# 31-60  : LOW RISK (Downrank / Reduced distribution)
+# 61-85  : MEDIUM RISK (Shadowban / Manual review flag)
+# 86-100 : HIGH RISK (Automatic removal / Account strike)
+# =========================================================================

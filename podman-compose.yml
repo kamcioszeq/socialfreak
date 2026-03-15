@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  curator:
+    image: localhost/newsautomation_curator:latest
+    build:
+      context: .
+      dockerfile: Containerfile
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - API_ID=${API_ID:-0}
+      - API_HASH=${API_HASH:-}
+      - BOT_TOKEN=${BOT_TOKEN:-}
+      - OWNER_ID=${OWNER_ID:-0}
+      - CHANNEL_ID=${CHANNEL_ID:-0}
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
+      - SOURCE_CHANNELS=${SOURCE_CHANNELS:-}
+      - FB_PAGE_ACCESS_TOKEN=${FB_PAGE_ACCESS_TOKEN:-}
+      - FB_PAGE_ID=${FB_PAGE_ID:-}
+      - WEB_HOST=0.0.0.0
+      - WEB_PORT=5174
+      - REVIEWER_IDS=${REVIEWER_IDS:-}
+    network_mode: host
+    volumes:
+      - ./session:/app/session
+      - ./data:/app/data
+      - ./reels_cache:/app/reels_cache
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  frontend:
+    image: localhost/newsautomation_frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      - curator
